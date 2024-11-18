@@ -123,7 +123,7 @@ canvas.addEventListener('click', function(event) {
         };
 
         // Отправляем данные методом POST
-        fetch('http://localhost:8080/demo-1.0-SNAPSHOT/ControllerServlet', {
+        fetch('http://localhost:8080/WebLab3-1.0-SNAPSHOT/ControllerServlet', {
             method: 'POST',  // Указываем метод POST
             headers: {
                 'Content-Type': 'application/json'  // Указываем, что передаем данные в формате JSON
@@ -219,7 +219,7 @@ form.addEventListener('submit', function (event) {
         };
 
         // Отправляем данные методом POST
-        fetch('http://localhost:8080/demo-1.0-SNAPSHOT/ControllerServlet', {
+        fetch('http://localhost:8080/WebLab3-1.0-SNAPSHOT/ControllerServlet', {
             method: 'POST',  // Указываем метод POST
             headers: {
                 'Content-Type': 'application/json'  // Указываем, что передаем данные в формате JSON
