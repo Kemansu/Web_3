@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Основная страница</title>
+    <h:outputStylesheet name="css/style.css"/>
+    <h:outputScript name="js/script.js"/>
+    <!-- Добавляем p:remoteCommand для вызова Managed Bean -->
+    <p:remoteCommand name="processParametersRemote"
+                     actionListener="#{parameterBean.processParametersRemote}"
+                     process="@this">
+        <f:param name="x" value="" />
+        <f:param name="y" value="" />
+    </p:remoteCommand>
+
+</h:head>
+
+<h:body>
+    <h1 style="text-align: center">Добро пожаловать!</h1>
+
+    <h:form>
+        <h:panelGrid columns="2">
+            <!-- Выбор значения X с использованием selectManyCheckbox -->
+            <h:outputLabel value="Выберите значение X:" style="width: 100%; text-align: center; position: absolute; left: -1.5vw; top: 7vw;"/>
+            <h:selectManyCheckbox  value="#{parameterBean.selectedXValues}" id="xValues" layout="pageDirection">
+                <f:selectItem itemValue="-3" itemLabel="-3" />
+                <f:selectItem itemValue="-2" itemLabel="-2" />
+                <f:selectItem itemValue="-1" itemLabel="-1" />
+                <f:selectItem itemValue="0" itemLabel="0" />
+                <f:selectItem itemValue="1" itemLabel="1" />
+                <f:selectItem itemValue="2" itemLabel="2" />
+                <f:selectItem itemValue="3" itemLabel="3" />
+                <f:attribute name="onclick" value="checkOnlyOne(this)" />
+            </h:selectManyCheckbox>
+            <!-- Ввод значения Y с использованием текстового поля -->
+            <h:outputLabel value="Введите значение Y (-3 ... 3):" for="yValue" />
+            <br/>
+            <h:inputText id="yValue" value="#{parameterBean.YValue}" oninput="validateYField()"/>
+
+            <!-- Выбор значения R с использованием commandLink -->
+            <h:outputLabel value="Выберите значение R:" style="margin-left: 0;" />
+            <br/>
+            <h:panelGroup>
+                <h:commandLink id="R1" style="margin: 10px;" value="1" action="#{parameterBean.selectR(1)}" />
+                <h:commandLink id="R1_5" style="margin: 10px;" value="1.5" action="#{parameterBean.selectR(1.5)}" />
+                <h:commandLink id="R2" style="margin: 10px;" value="2" action="#{parameterBean.selectR(2)}" />
+                <h:commandLink id="R2_5" style="margin: 10px;" value="2.5" action="#{parameterBean.selectR(2.5)}" />
+                <h:commandLink id="R3" style="margin: 10px;" value="3" action="#{parameterBean.selectR(3)}" />
+            </h:panelGroup>
+
+        </h:panelGrid>
+        <br/>
+        <h:commandButton id="processButton" value="Обработать" action="#{parameterBean.processParameters}" />
+    </h:form>
+    <h:form>
+        <h:commandButton value="На стартовую страницу" action="index" />
+    </h:form>
+
+    <div id="error_div" style="width: 100%; text-align: center"></div>
+
+
+    <br/><br/><br/><br/><br/>
+    <div style="width: 100%; text-align: center;">
+        <canvas id="plot" width="500" height="500" style="border:1px solid #000;"></canvas>
+    </div>
+    <br/><br/><br/><br/><br/>
+
+    <h:dataTable value="#{parameterBean.resultList}" var="result" border="1" id="table_for_results">
+        <h:column>
+            <f:facet name="header">X</f:facet>
+            <h:outputText value="#{result.x}" />
+        </h:column>
+        <h:column>
+            <f:facet name="header">Y</f:facet>
+            <h:outputText value="#{result.y}" />
+        </h:column>
+        <h:column>
+            <f:facet name="header">R</f:facet>
+            <h:outputText value="#{result.r}" />
+        </h:column>
+        <h:column>
+            <f:facet name="header">Результат</f:facet>
+            <h:outputText value="#{result.result}" />
+        </h:column>
+    </h:dataTable>
+
+    <h:outputScript>
+        var allResults = #{parameterBean.resultListAsJson};
+        var Dots = #{parameterBean.dots};
+        var r_value = #{parameterBean.RValue};
+    </h:outputScript>
+
+
+    <div id="pagination_controls">
+        <button id="prev_page" disabled="disabled">Назад</button>
+        <span id="page_info">Страница 1</span>
+        <button id="next_page">Вперед</button>
+    </div>
+</h:body>
+
+</html>

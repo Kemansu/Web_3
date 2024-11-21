@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Created by IntelliJ IDEA.
+  User: deniapogosov
+  Date: 19.11.2024
+  Time: 00:01
+-->
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+<h:head>
+    <title>Стартовая страница</title>
+</h:head>
+
+
+<h:body>
+    <div style="width: 100%; text-align: center;">
+        <h1>Добро пожаловать!</h1>
+        <h:outputText value="Ваше время:" />
+        <br/>
+        <h:outputText id="clock" styleClass="clock"/>
+        <br/>
+        <h:form>
+            <h:commandButton value="Перейти к проверке" action="mainPage" />
+        </h:form>
+
+    </div>
+    <script type="text/javascript">
+        function updateClock() {
+            const clockElement = document.getElementById('clock');
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            clockElement.innerHTML = hours + ':' + minutes + ':' + seconds;
+        }
+        setInterval(updateClock, 11000);
+        updateClock();
+    </script>
+</h:body>
+
+</html>
