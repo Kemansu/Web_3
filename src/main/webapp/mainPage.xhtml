@@ -12,6 +12,7 @@
     <title>Основная страница</title>
     <h:outputStylesheet name="css/style.css"/>
     <h:outputScript name="js/script.js"/>
+
     <!-- Добавляем p:remoteCommand для вызова Managed Bean -->
     <p:remoteCommand name="processParametersRemote"
                      actionListener="#{parameterBean.processParametersRemote}"
@@ -19,6 +20,15 @@
         <f:param name="x" value="" />
         <f:param name="y" value="" />
     </p:remoteCommand>
+
+    <p:remoteCommand name="getResultListAsJsonRemote"
+                     action="#{parameterBean.getResultListAsJsonRemote}"
+                     oncomplete="handleResults(args);"
+                     process="@this">
+        <f:param name="currentPage" value="" />
+    </p:remoteCommand>
+
+
 
 </h:head>
 
@@ -92,9 +102,11 @@
     </h:dataTable>
 
     <h:outputScript>
-        var allResults = #{parameterBean.resultListAsJson};
+        var allResults = #{parameterBean.getResultListAsJson(1)};
         var Dots = #{parameterBean.dots};
         var r_value = #{parameterBean.RValue};
+
+        const table_with_results = document.getElementById('table_for_results');
     </h:outputScript>
 
 

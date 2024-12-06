@@ -1,13 +1,16 @@
 // Переменные для пагинации
 let currentPage = 1;
-const resultsPerPage = 10;  // Количество результатов на странице
+let totalPages;
+var allResults;
+
 
 window.onload = function () {
+    updateResultsList();
     const error_div = document.getElementById('error_div');
     const table_with_results = document.getElementById('table_for_results');
 
 
-    document.getElementById('j_idt12:R' + r_value.toString().replace(/\./g, '_')).style.color = 'green';
+    document.getElementById('j_idt14:R' + r_value.toString().replace(/\./g, '_')).style.color = 'green';
 
 
     // Найти элемент selectManyCheckbox по его id
@@ -27,15 +30,16 @@ window.onload = function () {
     document.getElementById('prev_page').addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
+            updateResultsList();
             renderTable();
             updatePaginationControls();
         }
     });
 
     document.getElementById('next_page').addEventListener('click', () => {
-        const totalPages = Math.ceil(allResults.length / resultsPerPage);
         if (currentPage < totalPages) {
             currentPage++;
+            updateResultsList();
             renderTable();
             updatePaginationControls();
         }
@@ -169,43 +173,7 @@ window.onload = function () {
         drawPoint(plotX, plotY, status);
     });
 
-    // Функция для отображения таблицы на текущей странице с новыми результатами первыми
-    function renderTable() {
-        table_with_results.innerHTML = `
-        <th>X</th>
-        <th>Y</th>
-        <th>R</th>
-        <th>результат</th>
-    `;
 
-        // Инвертируем массив результатов, чтобы сначала шли новые записи
-        const reversedResults = [...allResults].reverse();
-
-        const start = (currentPage - 1) * resultsPerPage;
-        const end = start + resultsPerPage;
-        const resultsToShow = reversedResults.slice(start, end);
-
-        resultsToShow.forEach(result => {
-            const new_data = `<tr>
-                            <td>${result.x}</td>
-                            <td>${result.y}</td>
-                            <td>${result.r}</td>
-                            <td>${result.result}</td>
-                          </tr>`;
-            table_with_results.innerHTML += new_data;
-        });
-
-        // Обновляем информацию о текущей странице
-        document.getElementById('page_info').innerText = `Страница ${currentPage}`;
-    }
-    // Обновление состояния кнопок пагинации
-    function updatePaginationControls() {
-        const totalPages = Math.ceil(allResults.length / resultsPerPage);
-        document.getElementById('prev_page').disabled = currentPage === 1;
-        document.getElementById('next_page').disabled = currentPage === totalPages;
-    }
-
-    renderTable();  // Обновляем таблицу на текущей странице
 
 
     // Проверка поля Y
@@ -222,9 +190,9 @@ window.onload = function () {
     }
 
     // Найдем поле Y
-    const yField = document.getElementById('j_idt12:yValue');
+    const yField = document.getElementById('j_idt14:yValue');
 
-    const processButton = document.getElementById('j_idt12:processButton');
+    const processButton = document.getElementById('j_idt14:processButton');
 
     // Добавим событие "input", чтобы проверять данные при каждом вводе
     yField.addEventListener('input', function () {
@@ -240,6 +208,7 @@ window.onload = function () {
     }
 
     const regex = /^-?([0-4](\.\d+)?|3(\.0*)?)$/;
+
 
 };
 
@@ -286,6 +255,53 @@ function checkOnlyOne(checkbox) {
 
 }
 
+// Функция для отображения таблицы на текущей странице с новыми результатами первыми
+function renderTable() {
+    table_with_results.innerHTML = `
+        <th>X</th>
+        <th>Y</th>
+        <th>R</th>
+        <th>результат</th>
+    `;
+
+    // Инвертируем массив результатов, чтобы сначала шли новые записи
+    const reversedResults = [...allResults].reverse();
+
+
+    reversedResults.forEach(result => {
+        const new_data = `<tr>
+                            <td>${result.x}</td>
+                            <td>${result.y}</td>
+                            <td>${result.r}</td>
+                            <td>${result.result}</td>
+                          </tr>`;
+        table_with_results.innerHTML += new_data;
+    });
+
+    // Обновляем информацию о текущей странице
+    document.getElementById('page_info').innerText = `Страница ${currentPage}`;
+}
+// Обновление состояния кнопок пагинации
+function updatePaginationControls() {
+    document.getElementById('prev_page').disabled = currentPage === 1;
+    document.getElementById('next_page').disabled = currentPage === totalPages;
+}
+
 function callProcessParameters(x, y) {
     processParametersRemote([{name: 'x', value: x}, {name: 'y', value: y}]);
+}
+
+// Функция для обновления списка результатов
+function updateResultsList() {
+    // Вызываем remoteCommand для получения данных
+    getResultListAsJsonRemote([{ name: 'currentPage', value: currentPage }]);
+}
+
+function handleResults(args) {
+    allResults = JSON.parse(args.results);
+    totalPages = args.totalPages || 1;
+
+    // Вызываем renderTable только после обновления данных
+    renderTable();
+    updatePaginationControls();
 }

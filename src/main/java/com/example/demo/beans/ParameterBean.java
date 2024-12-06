@@ -2,10 +2,12 @@ package com.example.demo.beans;
 
 import com.example.demo.utils.HibernateUtil;
 import com.example.demo.utils.Result;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
+import org.primefaces.PrimeFaces;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ public class ParameterBean {
     private double rValue = 3;
     private HibernateUtil hibernateUtil = new HibernateUtil();
     private List<Result> resultList = hibernateUtil.getResults();
+    //private int currentPage = 1;
+
 
     {
         resultList.forEach((result_item) -> {dots.add("'" + result_item.getX() + ";" + result_item.getY() + ";" + result_item.isResult() +"'");});
@@ -106,14 +110,47 @@ public class ParameterBean {
     }
 
     // Метод для преобразования списка результатов в JSON
-    public String getResultListAsJson() {
+    public String getResultListAsJson(int currentPage) {
         ObjectMapper mapper = new ObjectMapper();
+        List<Result> resultListOnly10 = new ArrayList<>();
+
+        for (int i=(10 * (currentPage - 1)); i < resultList.size() && i < (10 * currentPage); i++){
+            resultListOnly10.add(resultList.get(i));
+        }
+
+
         try {
-            return mapper.writeValueAsString(resultList);
+            return mapper.writeValueAsString(resultListOnly10);
         } catch (Exception e) {
             e.printStackTrace();
             return "[]"; // Возвращаем пустой массив в случае ошибки
         }
+    }
+
+    public void getResultListAsJsonRemote() {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Result> resultListOnly10 = new ArrayList<>();
+
+        // Получение параметров из контекста
+        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+        int currentPage = Integer.parseInt(params.get("currentPage"));
+
+        for (int i=(10 * (currentPage - 1)); i < resultList.size() && i < (10 * currentPage); i++){
+            resultListOnly10.add(resultList.get(i));
+        }
+
+
+        String resultsJson = null;
+        try {
+            resultsJson = mapper.writeValueAsString(resultListOnly10);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        int totalPages = (int) Math.ceil((double) resultList.size() / 10);
+
+        PrimeFaces.current().ajax().addCallbackParam("results", resultsJson);
+        PrimeFaces.current().ajax().addCallbackParam("totalPages", totalPages);
     }
 
     public boolean isPointInArea(double x, double y, double R) {
@@ -122,4 +159,15 @@ public class ParameterBean {
         boolean inRectangle = (x >= 0 && x <= R/2) && (y >= -R && y <= 0);
         return inCircle || inTriangle || inRectangle;
     }
+
+//    public void setCurrentPage(int currentPage) {
+//        this.currentPage = currentPage;
+//    }
+//
+//    public void setCurrentPageRemote() {
+//        // Получение параметров из контекста
+//        Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+//        setCurrentPage(Integer.parseInt(params.get("currentPage")));
+//        System.out.println(currentPage);
+//    }
 }
